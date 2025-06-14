@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Content Manager - Instructor Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 8px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #64748b;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .upload-section {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .upload-section.dragover {
+            border-color: #6366f1;
+            background: #f0f9ff;
+        }
+
+        .upload-section h3 {
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .upload-section p {
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 12px;
+            transition: background 0.2s;
+        }
+
+        .upload-btn:hover {
+            background: #5855eb;
+        }
+
+        .url-input-section {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .url-input-section h4 {
+            margin-bottom: 12px;
+            color: #1e293b;
+        }
+
+        .url-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .url-input input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .url-input button {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .processing-queue {
+            margin-top: 24px;
+        }
+
+        .processing-queue h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .file-item {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-details h4 {
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .file-details p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .file-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #6366f1;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .content-preview {
+            margin-top: 24px;
+        }
+
+        .content-preview h3 {
+            color: #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .extracted-content {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .content-section {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .content-section:last-child {
+            border-bottom: none;
+        }
+
+        .content-section h4 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .key-terms {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .key-term {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .ai-analysis {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .ai-analysis h4 {
+            margin-bottom: 12px;
+        }
+
+        .module-assignment {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .module-assignment h4 {
+            color: #0c4a6e;
+            margin-bottom: 12px;
+        }
+
+        .module-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5855eb;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .tab-container {
+            margin-bottom: 24px;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #64748b;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            color: #6366f1;
+            border-bottom-color: #6366f1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #6366f1;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Course Content Manager</h1>
+            <p>Upload and manage course materials for AI-enhanced discussion boards</p>
+        </header>
+
+        <div class="dashboard">
+            <aside class="sidebar">
+                <nav>
+                    <ul class="nav-menu">
+                        <li><a href="#" class="active" onclick="showTab('upload')">📁 Upload Content</a></li>
+                        <li><a href="#" onclick="showTab('manage')">📚 Manage Modules</a></li>
+                        <li><a href="#" onclick="showTab('analytics')">📊 Content Analytics</a></li>
+                        <li><a href="#" onclick="showTab('settings')">⚙️ AI Settings</a></li>
+                        <li><a href="#" onclick="showTab('export')">📤 Export/Import</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <main class="main-content">
+                <div class="tab-container">
+                    <!-- Upload Tab -->
+                    <div id="upload-tab" class="tab-content active">
+                        <div class="upload-section" id="dropZone">
+                            <h3>📁 Upload Course Documents</h3>
+                            <p>Drag and drop files here or click to browse<br>
+                            <small>Supported: PDF, DOCX, TXT, HTML files (max 50MB each)</small></p>
+                            
+                            <input type="file" id="fileInput" class="file-input" multiple 
+                                   accept=".pdf,.docx,.txt,.html,.doc" onchange="handleFileUpload(event)">
+                            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                                📁 Choose Files
+                            </button>
+                            <button class="upload-btn" onclick="processAllFiles()" style="background: #059669;">
+                                🤖 Process with AI
+                            </button>
+                        </div>
+
+                        <div class="url-input-section">
+                            <h4>🌐 Add Web Resources</h4>
+                            <div class="url-input">
+                                <input type="url" id="urlInput" placeholder="Enter website URL, article link, or online resource...">
+                                <button onclick="addWebResource()">Add URL</button>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #64748b;">
+                                AI will extract key content, vocabulary, and learning objectives from web resources
+                            </p>
+                        </div>
+
+                        <div class="processing-queue">
+                            <h3>📋 Processing Queue</h3>
+                            <div id="fileQueue">
+                                <!-- Files will be added here dynamically -->
+                            </div>
+                        </div>
+
+                        <div class="content-preview" id="contentPreview" style="display: none;">
+                            <h3>🔍 Extracted Content Preview</h3>
+                            <div class="extracted-content" id="extractedContent">
+                                <!-- Extracted content will appear here -->
+                            </div>
+                            
+                            <div class="module-assignment">
+                                <h4>📚 Assign to Course Module</h4>
+                                <select class="module-select" id="moduleSelect">
+                                    <option value="">Select a module...</option>
+                                    <option value="1">Module 1: Foundations of AI Ethics</option>
+                                    <option value="2">Module 2: Algorithmic Bias and Equity</option>
+                                    <option value="3">Module 3: Privacy and Data Protection</option>
+                                    <option value="4">Module 4: Accessibility and Inclusion</option>
+                                </select>
+                                <div style="display: flex; gap: 12px;">
+                                    <button class="btn btn-success" onclick="saveToModule()">Save to Module</button>
+                                    <button class="btn btn-secondary" onclick="editContent()">Edit Content</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Tab -->
+                    <div id="manage-tab" class="tab-content">
+                        <h3>📚 Module Management</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>4</h3>
+                                <p>Active Modules</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>23</h3>
+                                <p>Documents Processed</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>156</h3>
+                                <p>Key Terms Extracted</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>89%</h3>
+                                <p>AI Accuracy Rate</p>
+                            </div>
+                        </div>
+
+                        <div id="moduleList">
+                            <!-- Module management interface -->
+                            <div class="content-section">
+                                <h4>Module 2: Algorithmic Bias and Educational Equity</h4>
+                                <p><strong>Documents:</strong> 6 files | <strong>Key Terms:</strong> 23 | <strong>Last Updated:</strong> 2 days ago</p>
+                                <div class="key-terms">
+                                    <span class="key-term">algorithmic bias</span>
+                                    <span class="key-term">fairness</span>
+                                    <span class="key-term">transparency</span>
+                                    <span class="key-term">accountability</span>
+                                    <span class="key-term">educational equity</span>
+                                </div>
+                                <div style="margin-top: 12px;">
+                                    <button class="btn btn-primary">Edit Module</button>
+                                    <button class="btn btn-secondary">Export Data</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Tab -->
+                    <div id="analytics-tab" class="tab-content">
+                        <h3>📊 Content Analytics</h3>
+                        <div class="ai-analysis">
+                            <h4>🤖 AI Content Analysis Report</h4>
+                            <p>Based on uploaded materials, your course demonstrates strong coverage of ethical AI concepts with particular emphasis on practical applications in educational settings. Recommended areas for expansion: international perspectives on AI governance, emerging technologies like large language models, and student agency in AI-enhanced learning environments.</p>
+                        </div>
+                        
+                        <div class="content-section">
+                            <h4>📈 Reading Level Analysis</h4>
+                            <p>Average reading level: Grade 14-16 (appropriate for undergraduate/graduate level)</p>
+                            <p>Vocabulary complexity: High (suitable for advanced students)</p>
+                            <p>Recommendation: Consider adding glossary definitions for technical terms</p>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div id="settings-tab" class="tab-content">
+                        <h3>⚙️ AI Processing Settings</h3>
+                        <div class="content-section">
+                            <h4>🧠 Content Extraction Preferences</h4>
+                            <label style="display: flex; align-items: center; margin: 8px 0;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                Extract key terms and vocabulary
+                            </label>
+                            <label style="display: flex; align-items: center; margin: 8px 0;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                Generate discussion questions
+                            </label>
+                            <label style="display: flex; align-items: center; margin: 8px 0;">
+                                <input type="checkbox" checked style="margin-right: 8px;">
+                                Identify learning objectives
+                            </label>
+                            <label style="display: flex; align-items: center; margin: 8px 0;">
+                                <input type="checkbox" style="margin-right: 8px;">
+                                Create assessment rubrics
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Export Tab -->
+                    <div id="export-tab" class="tab-content">
+                        <h3>📤 Export/Import Course Data</h3>
+                        <div class="content-section">
+                            <h4>Export Options</h4>
+                            <button class="btn btn-primary" onclick="exportCourseData('json')">Export as JSON</button>
+                            <button class="btn btn-primary" onclick="exportCourseData('csv')">Export as CSV</button>
+                            <button class="btn btn-primary" onclick="exportCourseData('qti')">Export for LMS (QTI)</button>
+                        </div>
+                        
+                        <div class="content-section">
+                            <h4>Import Existing Course</h4>
+                            <input type="file" accept=".json,.csv" style="margin-bottom: 12px;">
+                            <button class="btn btn-success">Import Course Data</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let processedContent = {};
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            // Add active class to nav item
+            event.target.classList.add('active');
+        }
+
+        // Drag and Drop functionality
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            document.getElementById('dropZone').classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            document.getElementById('dropZone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            processFiles(files);
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            processFiles(files);
+        }
+
+        function processFiles(files) {
+            Array.from(files).forEach(file => {
+                const fileObj = {
+                    id: Date.now() + Math.random(),
+                    file: file,
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    status: 'pending',
+                    progress: 0
+                };
+                
+                uploadedFiles.push(fileObj);
+                addFileToQueue(fileObj);
+            });
+        }
+
+        function addFileToQueue(fileObj) {
+            const queue = document.getElementById('fileQueue');
+            const fileElement = document.createElement('div');
+            fileElement.className = 'file-item';
+            fileElement.id = `file-${fileObj.id}`;
+            
+            const icon = getFileIcon(fileObj.type);
+            
+            fileElement.innerHTML = `
+                <div class="file-icon">${icon}</div>
+                <div class="file-details">
+                    <h4>${fileObj.name}</h4>
+                    <p>${formatFileSize(fileObj.size)} • ${fileObj.type || 'Unknown type'}</p>
+                    <div class="progress-bar" style="display: none;">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="file-status status-processing">Pending</div>
+            `;
+            
+            queue.appendChild(fileElement);
+        }
+
+        function getFileIcon(type) {
+            if (type.includes('pdf')) return '📄';
+            if (type.includes('word') || type.includes('document')) return '📝';
+            if (type.includes('text')) return '📃';
+            if (type.includes('html')) return '🌐';
+            return '📎';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function processAllFiles() {
+            uploadedFiles.forEach(fileObj => {
+                if (fileObj.status === 'pending') {
+                    processFileWithAI(fileObj);
+                }
+            });
+        }
+
+        function processFileWithAI(fileObj) {
+            const fileElement = document.getElementById(`file-${fileObj.id}`);
+            const statusElement = fileElement.querySelector('.file-status');
+            const progressBar = fileElement.querySelector('.progress-bar');
+            const progressFill = fileElement.querySelector('.progress-fill');
+            
+            // Update status
+            statusElement.textContent = 'Processing...';
+            statusElement.className = 'file-status status-processing';
+            progressBar.style.display = 'block';
+            
+            // Simulate AI processing with progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    
+                    // Complete processing
+                    statusElement.textContent = 'Completed';
+                    statusElement.className = 'file-status status-completed';
+                    fileObj.status = 'completed';
+                    
+                    // Generate mock extracted content
+                    generateMockContent(fileObj);
+                    showContentPreview();
+                }
+                
+                progressFill.style.width = `${Math.min(progress, 100)}%`;
+            }, 500);
+        }
+
+        function generateMockContent(fileObj) {
+            // Mock AI extraction based on file name/type
+            const mockContent = {
+                title: fileObj.name.replace(/\.[^/.]+$/, ""),
+                keyTerms: [
+                    "algorithmic bias", "fairness", "transparency", "accountability", 
+                    "educational equity", "machine learning", "data privacy"
+                ],
+                summary: "This document explores the ethical implications of artificial intelligence in educational settings, focusing on issues of bias, fairness, and student privacy. Key concepts include algorithmic accountability and the need for transparent AI systems in academic environments.",
+                learningObjectives: [
+                    "Understand the sources and types of algorithmic bias in educational AI",
+                    "Evaluate frameworks for ensuring fairness in automated assessment",
+                    "Analyze the trade-offs between personalization and privacy in learning systems"
+                ],
+                discussionQuestions: [
+                    "How can educational institutions ensure their AI systems are fair and unbiased?",
+                    "What role should students play in governing the use of AI in their education?",
+                    "How do we balance the benefits of personalized learning with privacy concerns?"
+                ],
+                readingLevel: "Grade 14-16",
+                wordCount: Math.floor(Math.random() * 5000) + 2000,
+                estimatedReadingTime: Math.floor(Math.random() * 20) + 10
+            };
+            
+            processedContent[fileObj.id] = mockContent;
+        }
+
+        function showContentPreview() {
+            const preview = document.getElementById('contentPreview');
+            const content = document.getElementById('extractedContent');
+            
+            // Get the most recently processed file
+            const latestFile = uploadedFiles.find(f => f.status === 'completed' && processedContent[f.id]);
+            if (!latestFile) return;
+            
+            const extracted = processedContent[latestFile.id];
+            
+            content.innerHTML = `
+                <div class="content-section">
+                    <h4>📖 Document Summary</h4>
+                    <p>${extracted.summary}</p>
+                    <p><strong>Reading Level:</strong> ${extracted.readingLevel} | 
+                       <strong>Word Count:</strong> ${extracted.wordCount} | 
+                       <strong>Est. Reading Time:</strong> ${extracted.estimatedReadingTime} min</p>
+                </div>
+                
+                <div class="content-section">
+                    <h4>🎯 Key Terms Extracted</h4>
+                    <div class="key-terms">
+                        ${extracted.keyTerms.map(term => `<span class="key-term">${term}</span>`).join('')}
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h4>📚 Learning Objectives</h4>
+                    <ul>
+                        ${extracted.learningObjectives.map(obj => `<li>${obj}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="content-section">
+                    <h4>💭 Discussion Questions</h4>
+                    <ul>
+                        ${extracted.discussionQuestions.map(q => `<li>${q}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="ai-analysis">
+                    <h4>🤖 AI Analysis</h4>
+                    <p>This content aligns well with educational AI ethics curriculum. Complexity level is appropriate for graduate students. Recommendation: Connect to Module 2 (Algorithmic Bias) for optimal pedagogical flow.</p>
+                </div>
+            `;
+            
+            preview.style.display = 'block';
+        }
+
+        function addWebResource() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) return;
+            
+            // Create a mock web resource file object
+            const webResource = {
+                id: Date.now() + Math.random(),
+                name: new URL(url).hostname,
+                type: 'web/url',
+                size: 0,
+                url: url,
+                status: 'pending',
+                progress: 0
+            };
+            
+            uploadedFiles.push(webResource);
+            addFileToQueue(webResource);
+            urlInput.value = '';
+            
+            // Auto-process web resource
+            setTimeout(() => processFileWithAI(webResource), 500);
+        }
+
+        function saveToModule() {
+            const moduleSelect = document.getElementById('moduleSelect');
+            const selectedModule = moduleSelect.value;
+            
+            if (!selectedModule) {
+                alert('Please select a module first.');
+                return;
+            }
+            
+            // Simulate saving to module
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 1000;
+                background: #10b981; color: white; padding: 16px 20px;
+                border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = `✅ Content successfully added to Module ${selectedModule}!`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+            
+            // Reset preview
+            document.getElementById('contentPreview').style.display = 'none';
+        }
+
+        function editContent() {
+            // Open content editor modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 2000;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white; border-radius: 12px; padding: 24px;
+                max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            `;
+            
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>✏️ Edit Extracted Content</h3>
+                    <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Key Terms (comma-separated)</label>
+                    <input type="text" value="algorithmic bias, fairness, transparency, accountability, educational equity" 
+                           style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Summary</label>
+                    <textarea style="width: 100%; height: 100px; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">This document explores the ethical implications of artificial intelligence in educational settings...</textarea>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px;">Learning Objectives</label>
+                    <textarea style="width: 100%; height: 80px; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px;">Understand algorithmic bias sources
+Evaluate fairness frameworks
+Analyze privacy trade-offs</textarea>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="saveEditedContent()" style="background: #6366f1; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-right: 8px;">
+                        Save Changes
+                    </button>
+                    <button onclick="this.closest('.modal').remove()" style="background: #e5e7eb; color: #374151; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        function saveEditedContent() {
+            // Save the edited content
+            document.querySelector('.modal').remove();
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 1000;
+                background: #6366f1; color: white; padding: 16px 20px;
+                border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.textContent = '✏️ Content updated successfully!';
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        function exportCourseData(format) {
+            const courseData = {
+                modules: [
+                    {
+                        id: 1,
+                        title: "Foundations of AI Ethics",
+                        keyTerms: ["AI ethics", "moral frameworks", "stakeholder analysis"],
+                        documents: 5,
+                        lastUpdated: "2024-06-10"
+                    },
+                    {
+                        id: 2,
+                        title: "Algorithmic Bias and Educational Equity",
+                        keyTerms: ["algorithmic bias", "fairness", "transparency", "accountability"],
+                        documents: 6,
+                        lastUpdated: "2024-06-12"
+                    }
+                ],
+                totalDocuments: 23,
+                totalKeyTerms: 156,
+                exportDate: new Date().toISOString()
+            };
+            
+            let dataStr, filename;
+            
+            switch(format) {
+                case 'json':
+                    dataStr = JSON.stringify(courseData, null, 2);
+                    filename = 'course_content.json';
+                    break;
+                case 'csv':
+                    const csvContent = courseData.modules.map(m => 
+                        `"${m.title}","${m.keyTerms.join('; ')}",${m.documents},"${m.lastUpdated}"`
+                    ).join('\n');
+                    dataStr = 'Title,Key Terms,Documents,Last Updated\n' + csvContent;
+                    filename = 'course_content.csv';
+                    break;
+                case 'qti':
+                    // QTI Common Cartridge format for LMS import
+                    dataStr = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns="http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1">
+    <metadata>
+        <schema>IMS Common Cartridge</schema>
+        <schemaversion>1.1.0</schemaversion>
+    </metadata>
+    <organizations>
+        <organization identifier="course_org" structure="rooted-hierarchy">
+            <title>AI Ethics Course Content</title>
+            ${courseData.modules.map(m => `
+            <item identifier="module_${m.id}">
+                <title>${m.title}</title>
+            </item>`).join('')}
+        </organization>
+    </organizations>
+</manifest>`;
+                    filename = 'course_content_qti.xml';
+                    break;
+            }
+            
+            // Create download
+            const blob = new Blob([dataStr], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            // Show notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; top: 20px; right: 20px; z-index: 1000;
+                background: #059669; color: white; padding: 16px 20px;
+                border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            notification.textContent = `📤 Course data exported as ${format.toUpperCase()}!`;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // Initialize the application
+        function init() {
+            setupDragAndDrop();
+            
+            // Add some sample processed files to demonstrate the interface
+            setTimeout(() => {
+                const sampleFile = {
+                    id: 'sample1',
+                    name: 'UNESCO_AI_Education_Guidelines.pdf',
+                    type: 'application/pdf',
+                    size: 2845760,
+                    status: 'completed',
+                    progress: 100
+                };
+                
+                uploadedFiles.push(sampleFile);
+                addFileToQueue(sampleFile);
+                
+                // Update status to completed
+                setTimeout(() => {
+                    const fileElement = document.getElementById('file-sample1');
+                    const statusElement = fileElement.querySelector('.file-status');
+                    statusElement.textContent = 'Completed';
+                    statusElement.className = 'file-status status-completed';
+                    
+                    generateMockContent(sampleFile);
+                }, 1000);
+            }, 2000);
+        }
+
+        // Add CSS animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize when page loads
+        window.addEventListener('load', init);
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
