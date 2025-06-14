@@ -1,0 +1,1375 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enhanced Discussion Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header h1 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-role {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .role-instructor {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .role-student {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .switch-role {
+            padding: 8px 16px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .switch-role:hover {
+            background: #5855eb;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .milestone-tracker {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .milestone {
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            position: relative;
+        }
+
+        .milestone.completed {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .milestone.current {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .milestone.upcoming {
+            border-color: #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .milestone-status {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .milestone.completed .milestone-status {
+            background: #10b981;
+            color: white;
+        }
+
+        .milestone.current .milestone-status {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .ai-panel {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .ai-panel h3 {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .ai-suggestion {
+            background: rgba(255,255,255,0.15);
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .ai-suggestion:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .realtime-feedback {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .realtime-feedback.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .writing-score {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            padding: 16px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border-left: 4px solid #6366f1;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#6366f1 0% var(--score), #e5e7eb var(--score) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 1.1rem;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .score-circle span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .new-post-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .post-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .writing-analytics {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .char-count {
+            color: #6366f1;
+        }
+
+        .citation-section {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .citation-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .citation-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+        }
+
+        .citation-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .citation-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #6366f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .citation-text {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .remove-citation {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5855eb;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .posts-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .post {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .post.featured {
+            border: 2px solid #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f59e0b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .post-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .author-info h4 {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .author-info .meta {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .post-content {
+            padding: 0 24px 20px;
+        }
+
+        .post-text {
+            margin-bottom: 16px;
+            color: #475569;
+        }
+
+        .post-citations {
+            background: #f8fafc;
+            border-left: 3px solid #6366f1;
+            padding: 12px 16px;
+            margin: 16px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .post-citations h5 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .citation {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #f8fafc;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .action-btn.active {
+            color: #6366f1;
+            background: #e0e7ff;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            max-width: 350px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+
+            .header {
+                padding: 16px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .ai-suggestions {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .post-actions {
+                flex-wrap: wrap;
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .milestone-tracker {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>AI-Enhanced Discussion Board</h1>
+            <div class="user-info">
+                <span class="user-role" id="userRole">Student</span>
+                <span id="userName">Current User</span>
+                <button class="switch-role" onclick="toggleRole()">Switch to Instructor</button>
+                <button class="btn btn-secondary" onclick="showPreferences()" style="margin-left: 12px;">⚙️ AI Settings</button>
+            </div>
+        </header>
+
+        <section class="progress-section">
+            <h3>📅 Discussion Milestones & Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 65%;" id="overallProgress"></div>
+            </div>
+            <p><span id="progressText">65% Complete</span> - Next milestone due in 2 days</p>
+            
+            <div class="milestone-tracker">
+                <div class="milestone completed">
+                    <div class="milestone-status">✓</div>
+                    <h4>Initial Post</h4>
+                    <p>Due: Mon, Oct 23</p>
+                    <p><strong>Status:</strong> Completed</p>
+                    <p><small>Quality Score: 9.2/10</small></p>
+                </div>
+                
+                <div class="milestone completed">
+                    <div class="milestone-status">✓</div>
+                    <h4>Peer Responses</h4>
+                    <p>Due: Wed, Oct 25</p>
+                    <p><strong>Status:</strong> 3/2 responses</p>
+                    <p><small>Avg Score: 8.7/10</small></p>
+                </div>
+                
+                <div class="milestone current">
+                    <div class="milestone-status">!</div>
+                    <h4>Deep Engagement</h4>
+                    <p>Due: Fri, Oct 27</p>
+                    <p><strong>Status:</strong> In Progress</p>
+                    <p><small>1 citation needed</small></p>
+                </div>
+                
+                <div class="milestone upcoming">
+                    <h4>Final Reflection</h4>
+                    <p>Due: Sun, Oct 29</p>
+                    <p><strong>Status:</strong> Pending</p>
+                    <p><small>Synthesis required</small></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="new-post-section">
+            <div class="ai-panel">
+                <h3>🤖 AI Writing Assistant - Real-time Feedback</h3>
+                <p>Get instant feedback as you write to improve quality and engagement</p>
+                <div class="ai-suggestions">
+                    <div class="ai-suggestion" onclick="getAISuggestion('content')">
+                        📝 Analyze Course Content
+                    </div>
+                    <div class="ai-suggestion" onclick="getAISuggestion('questions')">
+                        ❓ Generate Discussion Questions
+                    </div>
+                    <div class="ai-suggestion" onclick="getAISuggestion('feedback')">
+                        ✍️ Get Writing Feedback
+                    </div>
+                    <div class="ai-suggestion" onclick="getAISuggestion('socratic')">
+                        🧠 Socratic Questioning
+                    </div>
+                    <div class="ai-suggestion" onclick="getAISuggestion('citations')">
+                        📚 Find Credible Sources
+                    </div>
+                    <div class="ai-suggestion" onclick="showCourseContent()">
+                        📚 Browse Course Content
+                    </div>
+                </div>
+            </div>
+
+            <form class="post-form" onsubmit="createPost(event)">
+                <div class="form-group">
+                    <label for="postTitle">Discussion Title</label>
+                    <input type="text" id="postTitle" required placeholder="Enter your discussion title..." 
+                           oninput="updateRealtimeFeedback()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="postContent">Your Post</label>
+                    <textarea id="postContent" required placeholder="Share your thoughts, questions, or insights..." 
+                              oninput="updateRealtimeFeedback()"></textarea>
+                    
+                    <div class="writing-analytics">
+                        <span>Word count: <span class="char-count" id="wordCount">0</span></span>
+                        <span>Reading level: <span id="readingLevel">Grade 12</span></span>
+                        <span>Estimated reading time: <span id="readingTime">0 min</span></span>
+                    </div>
+                </div>
+
+                <div class="realtime-feedback" id="realtimeFeedback">
+                    <strong>💡 Real-time Suggestion:</strong> <span id="feedbackText">Start writing to receive AI feedback...</span>
+                </div>
+
+                <div class="writing-score" id="writingScore">
+                    <div class="score-circle" style="--score: 0%">
+                        <span id="scoreValue">0</span>
+                    </div>
+                    <div>
+                        <h4>Writing Quality Score</h4>
+                        <p id="scoreBreakdown">Curiosity: 0/10 | Clarity: 0/10 | Citations: 0/10 | Engagement: 0/10</p>
+                        <small id="scoreAdvice">Complete your post to receive a quality assessment</small>
+                    </div>
+                </div>
+
+                <div class="citation-section">
+                    <h4>📚 Source Citations</h4>
+                    <p>Add credible sources to support your arguments (minimum 1 required for this milestone)</p>
+                    <div class="citation-input">
+                        <input type="text" id="citationInput" placeholder="Enter URL, DOI, or citation text...">
+                        <button type="button" class="btn btn-secondary" onclick="addCitation()">Add Source</button>
+                        <button type="button" class="btn btn-ai" onclick="findSources()">🔍 Find Sources</button>
+                    </div>
+                    <div class="citation-list" id="citationList">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">📝 Post Discussion</button>
+                    <button type="button" class="btn btn-ai" onclick="getComprehensiveFeedback()">🤖 Get Full AI Review</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">🗑️ Clear</button>
+                </div>
+            </form>
+        </section>
+
+        <div class="posts-container" id="postsContainer">
+        </div>
+    </div>
+
+    <script>
+        let currentUser = {
+            name: 'Current User',
+            role: 'student',
+            id: 'user1',
+            writingScore: 0,
+            milestoneProgress: 65,
+            preferences: {
+                aiMode: 'realtime',
+                showQualityScore: true,
+                aiAssistanceLevel: 'full',
+                notifications: true
+            }
+        };
+
+        let citations = [];
+        let currentModule = 2;
+
+        const courseContent = {
+            modules: [
+                {
+                    id: 2,
+                    title: "Algorithmic Bias and Educational Equity",
+                    keyTerms: ["algorithmic bias", "fairness", "transparency", "accountability", "educational equity"],
+                    topics: ["Types of Bias", "Impact on Student Outcomes", "Mitigation Strategies"]
+                }
+            ],
+            readings: [
+                {
+                    id: 1,
+                    title: "Algorithmic Bias in Educational Technology",
+                    authors: ["Baker, R. S.", "Hawn, A."],
+                    moduleId: 2
+                }
+            ]
+        };
+
+        let posts = [
+            {
+                id: 'post1',
+                title: 'Algorithmic Bias in Educational Assessment: A Critical Analysis',
+                content: `The implementation of AI-powered assessment tools in education raises significant concerns about algorithmic bias and educational equity. When we consider fairness through the lens of educational theory, we must ask: would we design these systems if we didn't know whether we'd be in an advantaged or disadvantaged group?
+
+Current automated essay scoring systems show significant disparities across racial and socioeconomic lines, even when controlling for essay quality. This connects directly to our case study on bias in automated essay scoring.
+
+What strategies can educators implement to identify and mitigate algorithmic bias before it impacts student outcomes?`,
+                author: 'Sarah Chen',
+                authorId: 'student1',
+                role: 'student',
+                timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+                citations: [
+                    'Baker, R. S., & Hawn, A. (2022). Algorithmic bias in educational technology: A critical review.',
+                    'UNESCO. (2021). AI and education: Guidance for policy-makers.'
+                ],
+                reactions: { like: 12, insightful: 8, question: 4 },
+                qualityScore: 9.4,
+                featured: true,
+                replies: []
+            }
+        ];
+
+        function init() {
+            updateUserDisplay();
+            renderPosts();
+            updateProgressDisplay();
+        }
+
+        function updateUserDisplay() {
+            const roleElement = document.getElementById('userRole');
+            const roleClass = currentUser.role === 'instructor' ? 'role-instructor' : 'role-student';
+            roleElement.className = `user-role ${roleClass}`;
+            roleElement.textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+            
+            document.getElementById('userName').textContent = currentUser.name;
+            
+            const switchBtn = document.querySelector('.switch-role');
+            switchBtn.textContent = currentUser.role === 'student' ? 'Switch to Instructor' : 'Switch to Student';
+        }
+
+        function updateProgressDisplay() {
+            const progressFill = document.getElementById('overallProgress');
+            const progressText = document.getElementById('progressText');
+            
+            progressFill.style.width = `${currentUser.milestoneProgress}%`;
+            progressText.textContent = `${currentUser.milestoneProgress}% Complete`;
+        }
+
+        function toggleRole() {
+            currentUser.role = currentUser.role === 'student' ? 'instructor' : 'student';
+            currentUser.name = currentUser.role === 'instructor' ? 'Dr. Johnson' : 'Current User';
+            updateUserDisplay();
+        }
+
+        function updateRealtimeFeedback() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+            
+            document.getElementById('wordCount').textContent = wordCount;
+            document.getElementById('readingTime').textContent = Math.ceil(wordCount / 200) || 0;
+            
+            const avgWordsPerSentence = content.split(/[.!?]+/).length > 1 ? 
+                wordCount / content.split(/[.!?]+/).length : wordCount;
+            const readingLevel = Math.min(Math.max(Math.round(avgWordsPerSentence * 0.5 + 8), 6), 16);
+            document.getElementById('readingLevel').textContent = `Grade ${readingLevel}`;
+            
+            if (wordCount > 0) {
+                const feedback = generateContextualFeedback(title, content);
+                const feedbackElement = document.getElementById('realtimeFeedback');
+                const feedbackText = document.getElementById('feedbackText');
+                
+                feedbackText.textContent = feedback;
+                feedbackElement.classList.add('show');
+                
+                updateQualityScore(title, content, citations.length);
+            }
+        }
+
+        function generateContextualFeedback(title, content) {
+            const module = courseContent.modules[0];
+            const usedTerms = module.keyTerms.filter(term => 
+                content.toLowerCase().includes(term.toLowerCase()) || 
+                title.toLowerCase().includes(term.toLowerCase())
+            );
+            
+            let feedback = "";
+            
+            if (usedTerms.length > 0) {
+                feedback = `Excellent use of key terms: ${usedTerms.slice(0, 2).join(', ')}. `;
+            } else {
+                feedback = `Consider incorporating key terms: ${module.keyTerms.slice(0, 3).join(', ')}. `;
+            }
+            
+            if (citations.length === 0) {
+                feedback += `Add citations to strengthen your argument.`;
+            } else {
+                feedback += `Good use of sources to support your points.`;
+            }
+            
+            return feedback.trim() || "Great work! Your post shows engagement with course concepts.";
+        }
+
+        function updateQualityScore(title, content, citationCount) {
+            const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+            const module = courseContent.modules[0];
+            
+            const usedTerms = module.keyTerms.filter(term => 
+                content.toLowerCase().includes(term.toLowerCase()) || 
+                title.toLowerCase().includes(term.toLowerCase())
+            );
+            
+            let curiosityScore = Math.min(10, Math.max(0, 
+                (content.includes('?') ? 3 : 0) + 
+                (wordCount > 100 ? 3 : wordCount / 35) + 
+                (usedTerms.length * 2) + 
+                (title.length > 20 ? 2 : title.length / 10)
+            ));
+            
+            let clarityScore = Math.min(10, Math.max(0, 
+                (wordCount > 50 ? 4 : wordCount / 12.5) + 
+                (content.split(/[.!?]+/).length > 2 ? 2 : 1) + 
+                (usedTerms.length > 0 ? 2 : 0) + 
+                (title.length > 10 ? 2 : 0)
+            ));
+            
+            let citationScore = Math.min(10, citationCount * 2.5);
+            
+            let engagementScore = Math.min(10, 
+                (content.toLowerCase().includes('think') || content.toLowerCase().includes('believe') ? 2 : 0) +
+                (content.includes('?') ? 2 : 0) +
+                (wordCount > 150 ? 3 : wordCount / 50) +
+                (usedTerms.length > 2 ? 3 : usedTerms.length)
+            );
+            
+            const overallScore = Math.round((curiosityScore + clarityScore + citationScore + engagementScore) / 4 * 10) / 10;
+            
+            currentUser.writingScore = overallScore;
+            
+            const scoreCircle = document.querySelector('.score-circle');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreBreakdown = document.getElementById('scoreBreakdown');
+            const scoreAdvice = document.getElementById('scoreAdvice');
+            
+            const percentage = (overallScore / 10) * 100;
+            scoreCircle.style.setProperty('--score', `${percentage}%`);
+            scoreValue.textContent = overallScore.toFixed(1);
+            
+            scoreBreakdown.textContent = `Curiosity: ${curiosityScore.toFixed(1)}/10 | Clarity: ${clarityScore.toFixed(1)}/10 | Citations: ${citationScore.toFixed(1)}/10 | Engagement: ${engagementScore.toFixed(1)}/10`;
+            
+            if (overallScore < 6) {
+                if (usedTerms.length === 0) {
+                    scoreAdvice.textContent = `Consider using key terms from ${module.title}: ${module.keyTerms.slice(0, 2).join(', ')}.`;
+                } else {
+                    scoreAdvice.textContent = "Add citations and expand your analysis with specific examples.";
+                }
+            } else if (overallScore < 8) {
+                scoreAdvice.textContent = "Good work! Add more critical thinking or peer engagement questions.";
+            } else {
+                scoreAdvice.textContent = `Excellent work! Your post demonstrates strong engagement with ${module.title} concepts.`;
+            }
+        }
+
+        function addCitation() {
+            const input = document.getElementById('citationInput');
+            const citation = input.value.trim();
+            
+            if (citation) {
+                citations.push({
+                    id: Date.now(),
+                    text: citation,
+                    credibilityScore: Math.random() * 3 + 7
+                });
+                
+                input.value = '';
+                renderCitations();
+                updateRealtimeFeedback();
+                
+                showNotification('Citation added successfully!');
+            }
+        }
+
+        function renderCitations() {
+            const citationList = document.getElementById('citationList');
+            citationList.innerHTML = '';
+            
+            citations.forEach(citation => {
+                const citationDiv = document.createElement('div');
+                citationDiv.className = 'citation-item';
+                citationDiv.innerHTML = `
+                    <div>
+                        <div class="citation-text">${citation.text}</div>
+                        <small style="color: #10b981;">Credibility Score: ${citation.credibilityScore.toFixed(1)}/10</small>
+                    </div>
+                    <button class="remove-citation" onclick="removeCitation(${citation.id})">✕</button>
+                `;
+                citationList.appendChild(citationDiv);
+            });
+        }
+
+        function removeCitation(id) {
+            citations = citations.filter(citation => citation.id !== id);
+            renderCitations();
+            updateRealtimeFeedback();
+        }
+
+        function findSources() {
+            const suggestedSources = [
+                'UNESCO. (2021). AI and education: Guidance for policy-makers. UNESCO Publishing.',
+                'Baker, R. S. (2022). Algorithmic bias in educational technology. Journal of Educational Computing Research, 60(2), 245-267.',
+                'Prinsloo, P., & Slade, S. (2017). Ethics and learning analytics. Handbook of learning analytics, 49-57.',
+                'Siemens, G. (2013). Learning analytics: The emergence of a discipline. American Behavioral Scientist, 57(10), 1380-1400.'
+            ];
+            
+            const randomSource = suggestedSources[Math.floor(Math.random() * suggestedSources.length)];
+            document.getElementById('citationInput').value = randomSource;
+            
+            showNotification('AI found a relevant source! Review and add if appropriate.');
+        }
+
+        function createPost(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            
+            if (citations.length === 0 && currentUser.role === 'student') {
+                showNotification('⚠️ This milestone requires at least one citation. Please add a source.');
+                return;
+            }
+            
+            const newPost = {
+                id: 'post' + (posts.length + 1),
+                title,
+                content,
+                author: currentUser.name,
+                authorId: currentUser.id,
+                role: currentUser.role,
+                timestamp: new Date(),
+                citations: [...citations.map(c => c.text)],
+                reactions: { like: 0, insightful: 0, question: 0 },
+                qualityScore: currentUser.writingScore,
+                featured: false,
+                replies: []
+            };
+            
+            posts.unshift(newPost);
+            clearForm();
+            renderPosts();
+            
+            if (currentUser.role === 'student') {
+                currentUser.milestoneProgress = Math.min(85, currentUser.milestoneProgress + 10);
+                updateProgressDisplay();
+            }
+            
+            showNotification('🎉 Post created successfully! Milestone progress updated.');
+            
+            setTimeout(() => {
+                if (newPost.qualityScore >= 8.5) {
+                    newPost.featured = true;
+                    renderPosts();
+                    showNotification('⭐ Your post has been featured for exceptional quality!');
+                }
+            }, 2000);
+        }
+
+        function getComprehensiveFeedback() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            
+            if (!title.trim() || !content.trim()) {
+                showNotification('Please write some content first to get comprehensive feedback.');
+                return;
+            }
+            
+            const feedback = `Your post demonstrates strong analytical thinking with a quality score of ${currentUser.writingScore.toFixed(1)}/10. ` +
+                `The writing is clear and engaging. ` +
+                (citations.length > 0 ? 
+                    `Your ${citations.length} citation${citations.length > 1 ? 's' : ''} strengthen your argument. ` : 
+                    'Consider adding scholarly sources to support your claims. ') +
+                (content.includes('?') ? 
+                    'Your questions effectively encourage peer discussion. ' : 
+                    'Adding thoughtful questions could enhance peer engagement. ') +
+                `To improve further, consider connecting your ideas more explicitly to course learning objectives.`;
+            
+            showNotification(`AI Comprehensive Feedback: ${feedback}`);
+        }
+
+        function clearForm() {
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('citationInput').value = '';
+            citations = [];
+            renderCitations();
+            document.getElementById('realtimeFeedback').classList.remove('show');
+            
+            document.getElementById('wordCount').textContent = '0';
+            document.getElementById('readingTime').textContent = '0';
+            document.getElementById('readingLevel').textContent = 'Grade 12';
+            
+            const scoreCircle = document.querySelector('.score-circle');
+            const scoreValue = document.getElementById('scoreValue');
+            const scoreBreakdown = document.getElementById('scoreBreakdown');
+            const scoreAdvice = document.getElementById('scoreAdvice');
+            
+            scoreCircle.style.setProperty('--score', '0%');
+            scoreValue.textContent = '0';
+            scoreBreakdown.textContent = 'Curiosity: 0/10 | Clarity: 0/10 | Citations: 0/10 | Engagement: 0/10';
+            scoreAdvice.textContent = 'Complete your post to receive a quality assessment';
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            container.innerHTML = '';
+            
+            posts.forEach(post => {
+                const postElement = createPostElement(post);
+                container.appendChild(postElement);
+            });
+        }
+
+        function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = `post ${post.featured ? 'featured' : ''}`;
+            
+            const citationsHTML = post.citations && post.citations.length > 0 ? 
+                `<div class="post-citations">
+                    <h5>📚 Sources (${post.citations.length})</h5>
+                    ${post.citations.map(citation => `<div class="citation">${citation}</div>`).join('')}
+                </div>` : '';
+            
+            postDiv.innerHTML = `
+                ${post.featured ? '<div class="featured-badge">⭐ Featured</div>' : ''}
+                <div class="post-header">
+                    <div class="post-author">
+                        <div class="avatar">${post.author.charAt(0)}</div>
+                        <div class="author-info">
+                            <h4>${post.author} <span class="user-role ${post.role === 'instructor' ? 'role-instructor' : 'role-student'}">${post.role}</span></h4>
+                            <div class="meta">${formatTimestamp(post.timestamp)} | Quality Score: ${post.qualityScore}/10</div>
+                        </div>
+                    </div>
+                    <h2 class="post-title">${post.title}</h2>
+                </div>
+                
+                <div class="post-content">
+                    <div class="post-text">${post.content}</div>
+                    ${citationsHTML}
+                </div>
+                
+                <div class="post-actions">
+                    <button class="action-btn" onclick="toggleReaction('${post.id}', 'like')">
+                        👍 Like (${post.reactions.like})
+                    </button>
+                    <button class="action-btn" onclick="toggleReaction('${post.id}', 'insightful')">
+                        💡 Insightful (${post.reactions.insightful})
+                    </button>
+                    <button class="action-btn" onclick="toggleReaction('${post.id}', 'question')">
+                        ❓ Question (${post.reactions.question})
+                    </button>
+                    <button class="action-btn" onclick="getAIPostSummary('${post.id}')">
+                        🤖 AI Summary
+                    </button>
+                </div>
+            `;
+            
+            return postDiv;
+        }
+
+        function formatTimestamp(timestamp) {
+            const now = new Date();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            return `${days} days ago`;
+        }
+
+        function getAISuggestion(type) {
+            const suggestions = {
+                content: [
+                    "Consider connecting this topic to our recent reading on 'Ethics in AI Education' - how do the frameworks discussed apply to your current thinking?",
+                    "Think about real-world applications: How might this concept be implemented differently in K-12 vs higher education contexts?",
+                    "Connect this to the privacy frameworks we discussed - what are the implications for student data protection?"
+                ],
+                questions: [
+                    "What assumptions are underlying your current perspective on this issue?",
+                    "How might stakeholders with different backgrounds view this differently?",
+                    "What evidence would you need to see to change your current position?"
+                ],
+                feedback: [
+                    "Your argument is developing well. Consider adding a specific example to make it more concrete.",
+                    "Strong critical thinking evident! You might strengthen this by addressing potential counterarguments.",
+                    "Good analysis so far. Try connecting your ideas more explicitly to this week's learning objectives."
+                ],
+                socratic: [
+                    "What fundamental assumptions about education are embedded in your analysis?",
+                    "If this approach were implemented universally, what might be the unintended consequences?",
+                    "How does your perspective connect to broader questions about technology's role in society?"
+                ],
+                citations: [
+                    "For ethics in AI education, consider: UNESCO's guidelines, Baker's work on algorithmic bias, or Prinsloo & Slade on learning analytics ethics.",
+                    "For learning analytics, search for: Siemens on learning analytics emergence, Ferguson on research, or Clow on dark side of analytics.",
+                    "For educational technology, explore: Selwyn's critical perspectives, Cuban's research on classroom technology, or Prensky's digital natives work."
+                ]
+            };
+            
+            const suggestion = suggestions[type][Math.floor(Math.random() * suggestions[type].length)];
+            showNotification(`AI Suggestion: ${suggestion}`);
+        }
+
+        function showCourseContent() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 2000;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white; border-radius: 12px; padding: 24px;
+                max-width: 600px; max-height: 80vh; overflow-y: auto;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            `;
+            
+            const currentModuleData = courseContent.modules[0];
+            
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>📚 Current Module: ${currentModuleData.title}</h3>
+                    <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>🎯 Key Learning Topics:</h4>
+                    <p style="color: #64748b;">${currentModuleData.topics.join(' • ')}</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>📖 Key Terms:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${currentModuleData.keyTerms.map(term => 
+                            `<span style="background: #e0e7ff; color: #3730a3; padding: 4px 8px; border-radius: 4px; font-size: 0.9rem;">${term}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>📚 This Week's Readings:</h4>
+                    ${courseContent.readings.map(reading => `
+                        <div style="background: #f8fafc; border-left: 3px solid #6366f1; padding: 12px; margin: 8px 0; border-radius: 0 6px 6px 0;">
+                            <strong>${reading.title}</strong><br>
+                            <small>by ${reading.authors.join(', ')}</small>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="this.closest('.modal').remove()" style="background: #6366f1; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                        Close and Continue Writing
+                    </button>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        function showPreferences() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 2000;
+                display: flex; align-items: center; justify-content: center;
+            `;
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                background: white; border-radius: 12px; padding: 24px;
+                max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            `;
+            
+            content.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3>⚙️ AI Assistant Settings</h3>
+                    <button onclick="this.closest('.modal').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">×</button>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>🤖 AI Feedback Mode</h4>
+                    <div style="margin: 12px 0;">
+                        <label style="display: flex; align-items: center; margin: 8px 0; cursor: pointer;">
+                            <input type="radio" name="aiMode" value="realtime" ${currentUser.preferences.aiMode === 'realtime' ? 'checked' : ''} style="margin-right: 8px;">
+                            <div>
+                                <strong>Real-time Feedback</strong><br>
+                                <small style="color: #64748b;">Get instant suggestions as you type</small>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; margin: 8px 0; cursor: pointer;">
+                            <input type="radio" name="aiMode" value="off" ${currentUser.preferences.aiMode === 'off' ? 'checked' : ''} style="margin-right: 8px;">
+                            <div>
+                                <strong>AI Disabled</strong><br>
+                                <small style="color: #64748b;">Write without AI assistance</small>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="savePreferences()" style="background: #6366f1; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-right: 8px;">
+                        Save Settings
+                    </button>
+                    <button onclick="this.closest('.modal').remove()" style="background: #e5e7eb; color: #374151; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            
+            modal.className = 'modal';
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        function savePreferences() {
+            const modal = document.querySelector('.modal');
+            if (!modal) return;
+            
+            const aiModeInputs = modal.querySelectorAll('input[name="aiMode"]');
+            for (let input of aiModeInputs) {
+                if (input.checked) {
+                    currentUser.preferences.aiMode = input.value;
+                    break;
+                }
+            }
+            
+            modal.remove();
+            showNotification('AI settings saved successfully!');
+        }
+
+        function toggleReaction(postId, reactionType) {
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                post.reactions[reactionType]++;
+                renderPosts();
+            }
+        }
+
+        function getAIPostSummary(postId) {
+            const post = posts.find(p => p.id === postId);
+            if (!post) return;
+            
+            const summary = `This ${post.qualityScore >= 8.5 ? 'high-quality' : 'developing'} post explores ${post.title.toLowerCase()} with ${post.citations?.length || 0} supporting sources. The author demonstrates ${post.qualityScore >= 7 ? 'strong' : 'emerging'} critical thinking and ${post.content.includes('?') ? 'encourages peer engagement through questioning' : 'presents a clear argument'}.`;
+            
+            showNotification(`AI Summary: ${summary}`);
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 1.2rem;">🤖</span>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">AI Assistant</div>
+                        <div style="font-size: 0.9rem; line-height: 1.4;">${message}</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        window.addEventListener('load', init);
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
